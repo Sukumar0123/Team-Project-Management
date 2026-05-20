@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamFlow Board - GitHub Style Task Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-one"></div>
+  <div class="bg-orb orb-two"></div>
+  <div class="bg-orb orb-three"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar glass">
+      <div class="brand">
+        <div class="brand-icon">TF</div>
+        <div>
+          <h1>TeamFlow</h1>
+          <p>GitHub style tracker</p>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <button class="nav-link active" data-view="dashboard">Dashboard</button>
+        <button class="nav-link" data-view="board">Project Board</button>
+        <button class="nav-link" data-view="members">Team Members</button>
+        <button class="nav-link" data-view="activity">Activity</button>
+      </nav>
+
+      <div class="sidebar-card">
+        <p class="muted">Active Project</p>
+        <select id="projectSelect" class="input"></select>
+        <button id="newProjectBtn" class="btn btn-light full">+ New Project</button>
+        <button id="archiveProjectBtn" class="btn btn-warning full">Archive Project</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar glass">
+        <div>
+          <p class="eyebrow">Team Project Management</p>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="top-actions">
+          <div class="search-wrap">
+            <span>⌕</span>
+            <input id="searchInput" type="search" placeholder="Search tasks, labels, members..." />
+          </div>
+          <button id="themeToggle" class="icon-btn" title="Toggle theme">☾</button>
+          <button id="addTaskBtn" class="btn btn-primary">+ Add Task</button>
+        </div>
+      </header>
+
+      <section id="dashboardView" class="view active-view">
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="dashboard-grid">
+          <section class="panel glass">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Project Progress</p>
+                <h3 id="activeProjectName">Project</h3>
+              </div>
+              <span id="projectProgressText" class="big-percent">0%</span>
+            </div>
+            <div class="large-progress"><span id="projectProgressBar"></span></div>
+            <p id="projectSummary" class="muted spaced"></p>
+          </section>
+
+          <section class="panel glass">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Who is doing what</p>
+                <h3>Member Workload</h3>
+              </div>
+            </div>
+            <div id="workloadList" class="workload-list"></div>
+          </section>
+        </div>
+
+        <section class="panel glass">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Recent updates</p>
+              <h3>Activity Feed</h3>
+            </div>
+          </div>
+          <div id="recentActivity" class="activity-list"></div>
+        </section>
+      </section>
+
+      <section id="boardView" class="view">
+        <div class="filters glass">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="High">High Priority</button>
+          <button class="filter" data-filter="unassigned">Unassigned</button>
+          <button class="filter" data-filter="Bug">Bug</button>
+          <button class="filter" data-filter="Feature">Feature</button>
+          <button class="filter" data-filter="Documentation">Docs</button>
+        </div>
+        <div id="kanbanBoard" class="kanban-board"></div>
+      </section>
+
+      <section id="membersView" class="view">
+        <section class="panel glass">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Team</p>
+              <h3>Members</h3>
+            </div>
+            <button id="addMemberBtn" class="btn btn-light">+ Add Member</button>
+          </div>
+          <div id="membersGrid" class="members-grid"></div>
+        </section>
+      </section>
+
+      <section id="activityView" class="view">
+        <section class="panel glass">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Full history</p>
+              <h3>Project Activity</h3>
+            </div>
+          </div>
+          <div id="allActivity" class="activity-list"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="taskModal" class="modal hidden">
+    <div class="modal-card glass">
+      <div class="modal-head">
+        <h3 id="taskModalTitle">Add Task</h3>
+        <button class="close-btn" data-close="taskModal">×</button>
+      </div>
+      <form id="taskForm" class="form-grid">
+        <input type="hidden" id="taskId" />
+        <label>Task Title<input id="taskTitle" class="input" required placeholder="Create patient API" /></label>
+        <label>Assigned To<select id="taskAssignee" class="input"></select></label>
+        <label>Priority<select id="taskPriority" class="input"><option>Low</option><option>Medium</option><option>High</option></select></label>
+        <label>Due Date<input id="taskDueDate" class="input" type="date" required /></label>
+        <label>Status<select id="taskStatus" class="input"><option>Todo</option><option>In Progress</option><option>Review</option><option>Done</option></select></label>
+        <label>Progress %<input id="taskProgress" class="input" type="number" min="0" max="100" value="0" /></label>
+        <label class="wide">Labels<input id="taskLabels" class="input" placeholder="Frontend, Bug, Urgent" /></label>
+        <label class="wide">Description<textarea id="taskDescription" class="input" rows="4" placeholder="Explain the task details..."></textarea></label>
+        <div class="modal-actions wide">
+          <button type="button" class="btn btn-danger" id="deleteTaskBtn">Delete</button>
+          <button type="submit" class="btn btn-primary">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal hidden">
+    <div class="modal-card glass detail-card">
+      <div class="modal-head">
+        <h3 id="detailTitle">Task Details</h3>
+        <button class="close-btn" data-close="detailModal">×</button>
+      </div>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <div id="projectModal" class="modal hidden">
+    <div class="modal-card glass small-modal">
+      <div class="modal-head">
+        <h3>New Project</h3>
+        <button class="close-btn" data-close="projectModal">×</button>
+      </div>
+      <form id="projectForm">
+        <label>Project Name<input id="projectNameInput" class="input" required placeholder="Smart Hospital System" /></label>
+        <button class="btn btn-primary full" type="submit">Create Project</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="memberModal" class="modal hidden">
+    <div class="modal-card glass small-modal">
+      <div class="modal-head">
+        <h3 id="memberModalTitle">Add Member</h3>
+        <button class="close-btn" data-close="memberModal">×</button>
+      </div>
+      <form id="memberForm">
+        <input type="hidden" id="memberIdInput" />
+        <label>Member Name<input id="memberNameInput" class="input" required placeholder="Sukumar" /></label>
+        <label>Role<input id="memberRoleInput" class="input" placeholder="Frontend Developer" /></label>
+        <button id="memberSubmitBtn" class="btn btn-primary full" type="submit">Add Member</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-card glass small-modal">
+      <h3>Delete task?</h3>
+      <p class="muted">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-light" data-close="confirmModal">Cancel</button>
+        <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="memberConfirmModal" class="modal hidden">
+    <div class="modal-card glass small-modal">
+      <h3>Delete team member?</h3>
+      <p id="memberDeleteMessage" class="muted">This member will be removed.</p>
+      <div class="modal-actions">
+        <button class="btn btn-light" data-close="memberConfirmModal">Cancel</button>
+        <button id="confirmMemberDeleteBtn" class="btn btn-danger">Delete & Unassign Tasks</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="archiveConfirmModal" class="modal hidden">
+    <div class="modal-card glass small-modal">
+      <h3>Archive project?</h3>
+      <p class="muted">Archived projects are hidden from the active project list. Tasks are kept safely in LocalStorage.</p>
+      <div class="modal-actions">
+        <button class="btn btn-light" data-close="archiveConfirmModal">Cancel</button>
+        <button id="confirmArchiveBtn" class="btn btn-danger">Archive Project</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="confetti" class="confetti hidden">🎉 Task completed!</div>
+  <script src="script.js"></script>
+</body>
+</html>
